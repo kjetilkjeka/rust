@@ -385,6 +385,9 @@ impl HirEqInterExpr<'_, '_, '_> {
     fn eq_ty(&mut self, left: &Ty<'_>, right: &Ty<'_>) -> bool {
         match (&left.kind, &right.kind) {
             (&TyKind::Slice(l_vec), &TyKind::Slice(r_vec)) => self.eq_ty(l_vec, r_vec),
+            (&TyKind::View(lt, ref ll_id), &TyKind::View(rt, ref rl_id)) => {
+                self.eq_ty(lt, rt) && self.eq_body(ll_id.body, rl_id.body)
+            },
             (&TyKind::Array(lt, ref ll_id), &TyKind::Array(rt, ref rl_id)) => {
                 self.eq_ty(lt, rt) && self.eq_body(ll_id.body, rl_id.body)
             },
@@ -888,6 +891,10 @@ impl<'a, 'tcx> SpanlessHash<'a, 'tcx> {
         match ty.kind {
             TyKind::Slice(ty) => {
                 self.hash_ty(ty);
+            },
+            TyKind::View(ty, anon_const) => {
+                self.hash_ty(ty);
+                self.hash_body(anon_const.body);
             },
             TyKind::Array(ty, anon_const) => {
                 self.hash_ty(ty);

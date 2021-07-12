@@ -156,6 +156,12 @@ impl<'hir> Sig for hir::Ty<'hir> {
                 let text = format!("[{}]", nested.text);
                 Ok(replace_text(nested, text))
             }
+            hir::TyKind::View(ref ty, dim) => {
+                let nested = ty.make(offset + 1, id, scx)?;
+                let expr = id_to_string(&scx.tcx.hir(), dim.body.hir_id).replace('\n', " ");
+                let text = format!("[{}[{}]]", expr, nested.text);
+                Ok(replace_text(nested, text))
+            }
             hir::TyKind::Ptr(ref mt) => {
                 let prefix = match mt.mutbl {
                     hir::Mutability::Mut => "*mut ",

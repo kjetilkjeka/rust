@@ -1025,6 +1025,12 @@ impl<'a, 'tcx> ImproperCTypesVisitor<'a, 'tcx> {
                 help: Some("consider using a raw pointer instead".into()),
             },
 
+            ty::View(..) => FfiUnsafe {
+                ty,
+                reason: "views have no C equivalent".into(),
+                help: Some("consider using a raw pointer instead".into()),
+            },
+
             ty::Dynamic(..) => {
                 FfiUnsafe { ty, reason: "trait objects have no C equivalent".into(), help: None }
             }

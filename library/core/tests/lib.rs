@@ -104,3 +104,4 @@ mod task;
 mod time;
 mod tuple;
 mod unicode;
+mod view;

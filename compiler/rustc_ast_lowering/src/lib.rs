@@ -1276,6 +1276,9 @@ impl<'a, 'hir> LoweringContext<'a, 'hir> {
                 hir::TyKind::Err
             }
             TyKind::Slice(ref ty) => hir::TyKind::Slice(self.lower_ty(ty, itctx)),
+            TyKind::View(ref ty, ref dim) => {
+                hir::TyKind::View(self.lower_ty(ty, itctx), self.lower_anon_const(dim))
+            }
             TyKind::Ptr(ref mt) => hir::TyKind::Ptr(self.lower_mt(mt, itctx)),
             TyKind::Rptr(ref region, ref mt) => {
                 let span = self.sess.source_map().next_point(t.span.shrink_to_lo());

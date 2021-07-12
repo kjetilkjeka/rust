@@ -938,6 +938,14 @@ impl<'a> State<'a> {
                 self.print_type(ty);
                 self.s.word("]");
             }
+            ast::TyKind::View(ref ty, ref dim) => {
+                self.s.word("[");
+                self.print_expr(&dim.value);
+                self.s.word("[");
+                self.print_type(ty);
+                self.s.word("]");
+                self.s.word("]");
+            }
             ast::TyKind::Ptr(ref mt) => {
                 self.s.word("*");
                 self.print_mt(mt, true);

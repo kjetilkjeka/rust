@@ -169,6 +169,26 @@ pub fn push_debuginfo_type_name<'tcx>(
                 }
             }
         }
+        ty::View(inner_type, dim) => {
+            if cpp_like_names {
+                output.push_str("view$<");
+                push_debuginfo_type_name(tcx, inner_type, true, output, visited);
+                match dim.val {
+                    ty::ConstKind::Param(param) => write!(output, ",{}>", param.name).unwrap(),
+                    _ => write!(output, ",{}>", dim.eval_usize(tcx, ty::ParamEnv::reveal_all()))
+                        .unwrap(),
+                }
+            } else {
+                output.push('[');
+                match dim.val {
+                    ty::ConstKind::Param(param) => write!(output, "{}[", param.name).unwrap(),
+                    _ => write!(output, "{}[", dim.eval_usize(tcx, ty::ParamEnv::reveal_all()))
+                        .unwrap(),
+                }
+                push_debuginfo_type_name(tcx, inner_type, true, output, visited);
+                write!(output, "]]").unwrap()
+            }
+        }
         ty::Slice(inner_type) => {
             if cpp_like_names {
                 output.push_str("slice$<");

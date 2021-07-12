@@ -41,6 +41,7 @@ impl<'tcx> Printer<'tcx> for AbsolutePathPrinter<'tcx> {
             | ty::Float(_)
             | ty::Str
             | ty::Array(_, _)
+            | ty::View(_, _)
             | ty::Slice(_)
             | ty::RawPtr(_)
             | ty::Ref(_, _, _)

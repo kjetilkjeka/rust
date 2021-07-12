@@ -20,6 +20,7 @@ fn main() {
         TyKind::Foreign(..) => (), //~ ERROR usage of `ty::TyKind::<kind>`
         TyKind::Str => (), //~ ERROR usage of `ty::TyKind::<kind>`
         TyKind::Array(..) => (), //~ ERROR usage of `ty::TyKind::<kind>`
+        TyKind::View(..) => (), //~ ERROR usage of `ty::TyKind::<kind>`
         TyKind::Slice(..) => (), //~ ERROR usage of `ty::TyKind::<kind>`
         TyKind::RawPtr(..) => (), //~ ERROR usage of `ty::TyKind::<kind>`
         TyKind::Ref(..) => (), //~ ERROR usage of `ty::TyKind::<kind>`

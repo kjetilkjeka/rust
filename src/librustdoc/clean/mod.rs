@@ -1368,6 +1368,20 @@ impl Clean<Type> for hir::Ty<'_> {
                 BorrowedRef { lifetime, mutability: m.mutbl, type_: box m.ty.clean(cx) }
             }
             TyKind::Slice(ref ty) => Slice(box ty.clean(cx)),
+            TyKind::View(ref ty, ref dim) => {
+                let def_id = cx.tcx.hir().local_def_id(dim.hir_id);
+                // NOTE(min_const_generics): We can't use `const_eval_poly` for constants
+                // as we currently do not supply the parent generics to anonymous constants
+                // but do allow `ConstKind::Param`.
+                //
+                // `const_eval_poly` tries to to first substitute generic parameters which
+                // results in an ICE while manually constructing the constant and using `eval`
+                // does nothing for `ConstKind::Param`.
+                let ct = ty::Const::from_anon_const(cx.tcx, def_id);
+                let param_env = cx.tcx.param_env(def_id);
+                let dim = print_const(cx, ct.eval(cx.tcx, param_env));
+                View(box ty.clean(cx), dim)
+            }
             TyKind::Array(ref ty, ref length) => {
                 let def_id = cx.tcx.hir().local_def_id(length.hir_id);
                 // NOTE(min_const_generics): We can't use `const_eval_poly` for constants
@@ -1448,6 +1462,12 @@ impl<'tcx> Clean<Type> for Ty<'tcx> {
             ty::Float(float_ty) => Primitive(float_ty.into()),
             ty::Str => Primitive(PrimitiveType::Str),
             ty::Slice(ty) => Slice(box ty.clean(cx)),
+            ty::View(ty, dim) => {
+                let mut dim = cx.tcx.lift(dim).expect("array lift failed");
+                dim = dim.eval(cx.tcx, ty::ParamEnv::reveal_all());
+                let dim = print_const(cx, dim);
+                View(box ty.clean(cx), dim)
+            }
             ty::Array(ty, n) => {
                 let mut n = cx.tcx.lift(n).expect("array lift failed");
                 n = n.eval(cx.tcx, ty::ParamEnv::reveal_all());

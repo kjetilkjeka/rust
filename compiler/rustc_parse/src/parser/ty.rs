@@ -199,7 +199,7 @@ impl<'a> Parser<'a> {
         } else if self.eat(&token::BinOp(token::Star)) {
             self.parse_ty_ptr()?
         } else if self.eat(&token::OpenDelim(token::Bracket)) {
-            self.parse_array_or_slice_ty()?
+            self.parse_array_or_view_or_slice_ty()?
         } else if self.check(&token::BinOp(token::And)) || self.check(&token::AndAnd) {
             // Reference
             self.expect_and()?;
@@ -356,9 +356,9 @@ impl<'a> Parser<'a> {
         Ok(TyKind::Ptr(MutTy { ty, mutbl }))
     }
 
-    /// Parses an array (`[TYPE; EXPR]`) or slice (`[TYPE]`) type.
+    /// Parses an array (`[TYPE; EXPR]`), view (`[EXPR[TYPE]]`) or slice (`[TYPE]`) type.
     /// The opening `[` bracket is already eaten.
-    fn parse_array_or_slice_ty(&mut self) -> PResult<'a, TyKind> {
+    fn parse_array_or_view_or_slice_ty(&mut self) -> PResult<'a, TyKind> {
         let elt_ty = match self.parse_ty() {
             Ok(ty) => ty,
             Err(mut err)
@@ -381,6 +381,19 @@ impl<'a> Parser<'a> {
                 self.expect(&token::CloseDelim(token::Bracket))?;
             }
             TyKind::Array(elt_ty, length)
+        } else if self.eat(&token::OpenDelim(token::Bracket)) {
+            let mut dim = self.parse_anon_const_expr()?;
+            if let Err(e) = self.expect(&token::CloseDelim(token::Bracket)) {
+                // Try to recover from `X<Y, ...>` when `X::<Y, ...>` works
+                self.check_mistyped_turbofish_with_multiple_type_params(e, &mut dim.value)?;
+                self.expect(&token::CloseDelim(token::Bracket))?;
+            }
+            if let Err(e) = self.expect(&token::CloseDelim(token::Bracket)) {
+                // Try to recover from `X<Y, ...>` when `X::<Y, ...>` works
+                self.check_mistyped_turbofish_with_multiple_type_params(e, &mut dim.value)?;
+                self.expect(&token::CloseDelim(token::Bracket))?;
+            }
+            TyKind::View(elt_ty, dim)
         } else {
             self.expect(&token::CloseDelim(token::Bracket))?;
             TyKind::Slice(elt_ty)

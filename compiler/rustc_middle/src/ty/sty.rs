@@ -120,6 +120,10 @@ pub enum TyKind<'tcx> {
     /// The pointee of an array slice. Written as `[T]`.
     Slice(Ty<'tcx>),
 
+    /// The pointee and stride of an n-dimensional array view.
+    /// Written as `[n[T]]`.
+    View(Ty<'tcx>, &'tcx ty::Const<'tcx>),
+
     /// A raw pointer. Written as `*mut T` or `*const T`
     RawPtr(TypeAndMut<'tcx>),
 
@@ -2027,6 +2031,7 @@ impl<'tcx> TyS<'tcx> {
             | ty::Str
             | ty::Array(..)
             | ty::Slice(_)
+            | ty::View(..)
             | ty::RawPtr(_)
             | ty::Ref(..)
             | ty::FnDef(..)
@@ -2078,6 +2083,10 @@ impl<'tcx> TyS<'tcx> {
             | ty::Tuple(..) => tcx.types.unit,
 
             ty::Str | ty::Slice(_) => tcx.types.usize,
+            ty::View(_, _) => {
+                let view_metadata = tcx.lang_items().view_metadata().unwrap();
+                tcx.type_of(view_metadata).subst(tcx, &[tail.into()])
+            },
             ty::Dynamic(..) => {
                 let dyn_metadata = tcx.lang_items().dyn_metadata().unwrap();
                 tcx.type_of(dyn_metadata).subst(tcx, &[tail.into()])
@@ -2155,7 +2164,7 @@ impl<'tcx> TyS<'tcx> {
             | ty::Never
             | ty::Error(_) => true,
 
-            ty::Str | ty::Slice(_) | ty::Dynamic(..) | ty::Foreign(..) => false,
+            ty::Str | ty::Slice(_) | ty::View(..) | ty::Dynamic(..) | ty::Foreign(..) => false,
 
             ty::Tuple(tys) => tys.iter().all(|ty| ty.expect_ty().is_trivially_sized(tcx)),
 

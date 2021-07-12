@@ -367,6 +367,10 @@ fn check_expr<'tcx>(cx: &LateContext<'tcx>, expr: &'tcx Expr<'_>, bindings: &mut
 fn check_ty<'tcx>(cx: &LateContext<'tcx>, ty: &'tcx Ty<'_>, bindings: &mut Vec<(Symbol, Span)>) {
     match ty.kind {
         TyKind::Slice(sty) => check_ty(cx, sty, bindings),
+        TyKind::View(fty, ref anon_const) => {
+            check_ty(cx, fty, bindings);
+            check_expr(cx, &cx.tcx.hir().body(anon_const.body).value, bindings);
+        },
         TyKind::Array(fty, ref anon_const) => {
             check_ty(cx, fty, bindings);
             check_expr(cx, &cx.tcx.hir().body(anon_const.body).value, bindings);

@@ -561,21 +561,76 @@ impl<'tcx> LayoutCx<'tcx, TyCtxt<'tcx>> {
                 }
 
                 let unsized_part = tcx.struct_tail_erasing_lifetimes(pointee, param_env);
-                let metadata = match unsized_part.kind() {
+                match unsized_part.kind() {
                     ty::Foreign(..) => {
                         return Ok(tcx.intern_layout(Layout::scalar(self, data_ptr)));
                     }
-                    ty::Slice(_) | ty::Str => scalar_unit(Int(dl.ptr_sized_integer(), false)),
+                    ty::Slice(_) | ty::Str => {
+                        // Effectively a (ptr, meta) tuple.
+                        let metadata = scalar_unit(Int(dl.ptr_sized_integer(), false));
+                        tcx.intern_layout(self.scalar_pair(data_ptr, metadata))
+                    }
+                    ty::View(_, mut dim) => {
+                        if dim.has_projections() {
+                            dim = tcx.normalize_erasing_regions(param_env, dim);
+                            if dim.has_projections() {
+                                return Err(LayoutError::Unknown(ty));
+                            }
+                        }
+                        let dim =
+                            dim.try_eval_usize(tcx, param_env).ok_or(LayoutError::Unknown(ty))?;
+
+                        // There are 3 parts in a `&[T[n]]`. The ptr, the len-array and the stride-array
+                        // The len-array and stride-array are sized `dim` with ptr sized elements.
+
+                        let dl = self.data_layout();
+                        let metadata_element = scalar_unit(Int(dl.ptr_sized_integer(), false));
+                        let metadata_element_align = metadata_element.value.align(dl);
+                        let align = data_ptr
+                            .value
+                            .align(dl)
+                            .max(metadata_element_align)
+                            .max(dl.aggregate_align);
+                        let len_offset =
+                            data_ptr.value.size(dl).align_to(metadata_element_align.abi);
+                        let len_size = metadata_element
+                            .value
+                            .size(dl)
+                            .checked_mul(dim, dl)
+                            .ok_or(LayoutError::SizeOverflow(ty))?
+                            .align_to(metadata_element_align.abi);
+                        let stride_offset = len_offset
+                            .checked_add(len_size, dl)
+                            .ok_or(LayoutError::SizeOverflow(ty))?
+                            .align_to(metadata_element_align.abi);
+                        let stride_size = metadata_element
+                            .value
+                            .size(dl)
+                            .checked_mul(dim, dl)
+                            .ok_or(LayoutError::SizeOverflow(ty))?
+                            .align_to(metadata_element_align.abi);
+                        let size = (stride_offset + stride_size).align_to(align.abi);
+
+                        tcx.intern_layout(Layout {
+                            variants: Variants::Single { index: VariantIdx::new(0) },
+                            fields: FieldsShape::Arbitrary {
+                                offsets: vec![Size::ZERO, len_offset, stride_offset],
+                                memory_index: vec![0, 1, 2],
+                            },
+                            abi: Abi::Aggregate { sized: true },
+                            largest_niche: None,
+                            align: metadata_element_align,
+                            size,
+                        })
+                    }
                     ty::Dynamic(..) => {
+                        // Effectively a (ptr, meta) tuple.
                         let mut vtable = scalar_unit(Pointer);
                         vtable.valid_range = 1..=*vtable.valid_range.end();
-                        vtable
+                        tcx.intern_layout(self.scalar_pair(data_ptr, vtable))
                     }
                     _ => return Err(LayoutError::Unknown(unsized_part)),
-                };
-
-                // Effectively a (ptr, meta) tuple.
-                tcx.intern_layout(self.scalar_pair(data_ptr, metadata))
+                }
             }
 
             // Arrays and slices.
@@ -611,6 +666,17 @@ impl<'tcx> LayoutCx<'tcx, TyCtxt<'tcx>> {
                 })
             }
             ty::Slice(element) => {
+                let element = self.layout_of(element)?;
+                tcx.intern_layout(Layout {
+                    variants: Variants::Single { index: VariantIdx::new(0) },
+                    fields: FieldsShape::Array { stride: element.size, count: 0 },
+                    abi: Abi::Aggregate { sized: false },
+                    largest_niche: None,
+                    align: element.align,
+                    size: Size::ZERO,
+                })
+            }
+            ty::View(element, _) => {
                 let element = self.layout_of(element)?;
                 tcx.intern_layout(Layout {
                     variants: Variants::Single { index: VariantIdx::new(0) },
@@ -2244,12 +2310,21 @@ where
                             ])
                             */
                         }
+                        ty::View(_, dim) => {
+                            let dim = dim.eval_usize(tcx, cx.param_env());
+                            TyMaybeWithLayout::Ty(tcx.mk_imm_ref(
+                                tcx.lifetimes.re_static,
+                                tcx.mk_array(tcx.types.usize, 2*dim),
+                            ))
+                        }
                         _ => bug!("TyAndLayout::field_type({:?}): not applicable", this),
                     }
                 }
 
-                // Arrays and slices.
-                ty::Array(element, _) | ty::Slice(element) => TyMaybeWithLayout::Ty(element),
+                // Arrays, views and slices.
+                ty::Array(element, _) | ty::View(element, _) | ty::Slice(element) => {
+                    TyMaybeWithLayout::Ty(element)
+                }
                 ty::Str => TyMaybeWithLayout::Ty(tcx.types.u8),
 
                 // Tuples, generators and closures.

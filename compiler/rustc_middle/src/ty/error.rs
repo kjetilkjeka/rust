@@ -259,7 +259,9 @@ impl<'tcx> ty::TyS<'tcx> {
                 "array".into()
             }
             ty::Slice(ty) if ty.is_simple_ty() => format!("slice `{}`", self).into(),
+            ty::View(ty, _) if ty.is_simple_ty() => format!("view `{}`", self).into(),
             ty::Slice(_) => "slice".into(),
+            ty::View(_, _) => "view".into(),
             ty::RawPtr(_) => "*-ptr".into(),
             ty::Ref(_, ty, mutbl) => {
                 let tymut = ty::TypeAndMut { ty, mutbl };
@@ -321,6 +323,7 @@ impl<'tcx> ty::TyS<'tcx> {
             ty::Foreign(_) => "extern type".into(),
             ty::Array(..) => "array".into(),
             ty::Slice(_) => "slice".into(),
+            ty::View(..) => "view".into(),
             ty::RawPtr(_) => "raw pointer".into(),
             ty::Ref(.., mutbl) => match mutbl {
                 hir::Mutability::Mut => "mutable reference",

@@ -706,7 +706,9 @@ impl<'tcx> ty::TyS<'tcx> {
             | ty::Error(_)
             | ty::FnPtr(_) => true,
             ty::Tuple(_) => self.tuple_fields().all(Self::is_trivially_freeze),
-            ty::Slice(elem_ty) | ty::Array(elem_ty, _) => elem_ty.is_trivially_freeze(),
+            ty::Slice(elem_ty) | ty::View(elem_ty, _) | ty::Array(elem_ty, _) => {
+                elem_ty.is_trivially_freeze()
+            }
             ty::Adt(..)
             | ty::Bound(..)
             | ty::Closure(..)
@@ -746,7 +748,9 @@ impl<'tcx> ty::TyS<'tcx> {
             | ty::Error(_)
             | ty::FnPtr(_) => true,
             ty::Tuple(_) => self.tuple_fields().all(Self::is_trivially_unpin),
-            ty::Slice(elem_ty) | ty::Array(elem_ty, _) => elem_ty.is_trivially_unpin(),
+            ty::Slice(elem_ty) | ty::View(elem_ty, _) | ty::Array(elem_ty, _) => {
+                elem_ty.is_trivially_unpin()
+            }
             ty::Adt(..)
             | ty::Bound(..)
             | ty::Closure(..)
@@ -861,7 +865,7 @@ impl<'tcx> ty::TyS<'tcx> {
             //
             // Because this function is "shallow", we return `true` for these composites regardless
             // of the type(s) contained within.
-            Ref(..) | Array(..) | Slice(_) | Tuple(..) => true,
+            Ref(..) | Array(..) | View(..) | Slice(_) | Tuple(..) => true,
 
             // Raw pointers use bitwise comparison.
             RawPtr(_) | FnPtr(_) => true,
@@ -998,6 +1002,7 @@ pub fn needs_drop_components(
         ty::Dynamic(..) | ty::Error(_) => Err(AlwaysRequiresDrop),
 
         ty::Slice(ty) => needs_drop_components(ty, target_layout),
+        ty::View(ty, _) => needs_drop_components(ty, target_layout),
         ty::Array(elem_ty, size) => {
             match needs_drop_components(elem_ty, target_layout) {
                 Ok(v) if v.is_empty() => Ok(v),

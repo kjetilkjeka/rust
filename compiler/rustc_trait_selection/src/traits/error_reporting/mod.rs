@@ -1319,6 +1319,7 @@ impl<'a, 'tcx> InferCtxtPrivExt<'tcx> for InferCtxt<'a, 'tcx> {
                 ty::Generator(..) => Some(18),
                 ty::Foreign(..) => Some(19),
                 ty::GeneratorWitness(..) => Some(20),
+                ty::View(..) => Some(21),
                 ty::Placeholder(..) | ty::Bound(..) | ty::Infer(..) | ty::Error(_) => None,
             }
         }

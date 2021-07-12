@@ -268,6 +268,10 @@ pub mod time;
 
 pub mod unicode;
 
+#[unstable(feature = "view_native_type", issue = "none")]
+#[cfg(not(bootstrap))]
+pub mod view;
+
 /* Async */
 pub mod future;
 pub mod task;

@@ -67,7 +67,7 @@ pub fn simplify_type(
         ty::Float(float_type) => Some(FloatSimplifiedType(float_type)),
         ty::Adt(def, _) => Some(AdtSimplifiedType(def.did)),
         ty::Str => Some(StrSimplifiedType),
-        ty::Array(..) | ty::Slice(_) => Some(ArraySimplifiedType),
+        ty::Array(..) | ty::Slice(_) | ty::View(_, _) => Some(ArraySimplifiedType),
         ty::RawPtr(_) => Some(PtrSimplifiedType),
         ty::Dynamic(ref trait_info, ..) => match trait_info.principal_def_id() {
             Some(principal_def_id) if !tcx.trait_is_auto(principal_def_id) => {

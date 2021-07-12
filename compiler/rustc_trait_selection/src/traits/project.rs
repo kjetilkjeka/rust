@@ -1025,6 +1025,7 @@ fn assemble_candidates_from_impls<'cx, 'tcx>(
                     | ty::Foreign(_)
                     | ty::Str
                     | ty::Array(..)
+                    | ty::View(..)
                     | ty::Slice(_)
                     | ty::RawPtr(..)
                     | ty::Ref(..)
@@ -1066,6 +1067,7 @@ fn assemble_candidates_from_impls<'cx, 'tcx>(
                     | ty::Foreign(_)
                     | ty::Str
                     | ty::Array(..)
+                    | ty::View(..)
                     | ty::Slice(_)
                     | ty::RawPtr(..)
                     | ty::Ref(..)

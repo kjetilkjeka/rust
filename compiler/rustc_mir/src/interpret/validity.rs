@@ -622,6 +622,7 @@ impl<'rt, 'mir, 'tcx: 'mir, M: Machine<'mir, 'tcx>> ValidityVisitor<'rt, 'mir, '
             ty::Adt(..)
             | ty::Tuple(..)
             | ty::Array(..)
+            | ty::View(..)
             | ty::Slice(..)
             | ty::Str
             | ty::Dynamic(..)

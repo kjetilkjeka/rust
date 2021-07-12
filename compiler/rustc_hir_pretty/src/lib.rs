@@ -373,6 +373,14 @@ impl<'a> State<'a> {
                 self.print_type(&ty);
                 self.s.word("]");
             }
+            hir::TyKind::View(ref ty, ref dim) => {
+                self.s.word("[");
+                self.print_anon_const(dim);
+                self.s.word("[");
+                self.print_type(&ty);
+                self.s.word("]");
+                self.s.word("]");
+            }
             hir::TyKind::Ptr(ref mt) => {
                 self.s.word("*");
                 self.print_mt(mt, true);

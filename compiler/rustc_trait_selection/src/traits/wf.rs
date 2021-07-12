@@ -506,6 +506,10 @@ impl<'a, 'tcx> WfPredicates<'a, 'tcx> {
                     self.require_sized(subty, traits::SliceOrArrayElem);
                 }
 
+                ty::View(subty, _) => {
+                    self.require_sized(subty, traits::SliceOrArrayElem);
+                }
+
                 ty::Array(subty, _) => {
                     self.require_sized(subty, traits::SliceOrArrayElem);
                     // Note that we handle the len is implicitly checked while walking `arg`.

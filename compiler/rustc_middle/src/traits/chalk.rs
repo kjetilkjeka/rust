@@ -159,6 +159,8 @@ impl<'tcx> chalk_ir::interner::Interner for RustInterner<'tcx> {
                 Some(write!(fmt, "(&{:?} mut {:?})", lifetime, ty))
             }
             chalk_ir::TyKind::Array(ty, len) => Some(write!(fmt, "[{:?}; {:?}]", ty, len)),
+            // TODO: Add View to chalk
+            //chalk_ir::TyKind::View(ty, dim) => Some(write!(fmt, "[{:?}[{:?}]]", ty, dim)),
             chalk_ir::TyKind::Slice(ty) => Some(write!(fmt, "[{:?}]", ty)),
             chalk_ir::TyKind::Tuple(len, substs) => Some((|| {
                 write!(fmt, "(")?;

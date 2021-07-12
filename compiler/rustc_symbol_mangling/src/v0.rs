@@ -408,6 +408,11 @@ impl Printer<'tcx> for SymbolMangler<'tcx> {
                 self = ty.print(self)?;
                 self = self.print_const(len)?;
             }
+            ty::View(ty, dim) => {
+                self.push("V");
+                self = ty.print(self)?;
+                self = self.print_const(dim)?;
+            }
             ty::Slice(ty) => {
                 self.push("S");
                 self = ty.print(self)?;

@@ -1895,6 +1895,7 @@ impl<'tcx> TyCtxt<'tcx> {
                     Adt,
                     Array,
                     Slice,
+                    View,
                     RawPtr,
                     Ref,
                     FnDef,

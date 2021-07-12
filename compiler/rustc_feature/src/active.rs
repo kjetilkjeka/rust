@@ -687,6 +687,9 @@ declare_features! (
     /// Allows qualified paths in struct expressions, struct patterns and tuple struct patterns.
     (active, more_qualified_paths, "1.54.0", Some(80080), None),
 
+    /// Adds the view (`[n[T]]`) type
+    (active, view_native_type, "1.54.0", None, None),
+
     // -------------------------------------------------------------------------
     // feature-group-end: actual feature gates
     // -------------------------------------------------------------------------

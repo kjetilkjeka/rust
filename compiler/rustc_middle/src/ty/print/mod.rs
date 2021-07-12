@@ -278,7 +278,7 @@ fn characteristic_def_id_of_type_cached<'a>(
 
         ty::Dynamic(data, ..) => data.principal_def_id(),
 
-        ty::Array(subty, _) | ty::Slice(subty) => {
+        ty::Array(subty, _) | ty::Slice(subty) | ty::View(subty, _) => {
             characteristic_def_id_of_type_cached(subty, visited)
         }
 

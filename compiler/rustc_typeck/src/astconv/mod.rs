@@ -2212,6 +2212,12 @@ impl<'o, 'tcx> dyn AstConv<'tcx> + 'o {
 
         let result_ty = match ast_ty.kind {
             hir::TyKind::Slice(ref ty) => tcx.mk_slice(self.ast_ty_to_ty(&ty)),
+            hir::TyKind::View(ref ty, ref dim) => {
+                let dim_def_id = tcx.hir().local_def_id(dim.hir_id);
+                let dim = ty::Const::from_anon_const(tcx, dim_def_id);
+                let view_ty = tcx.mk_ty(ty::View(self.ast_ty_to_ty(&ty), dim));
+                self.normalize_ty(ast_ty.span, view_ty)
+            }
             hir::TyKind::Ptr(ref mt) => {
                 tcx.mk_ptr(ty::TypeAndMut { ty: self.ast_ty_to_ty(&mt.ty), mutbl: mt.mutbl })
             }

@@ -540,6 +540,7 @@ fn ty_is_local_constructor(ty: Ty<'_>, in_crate: InCrate) -> bool {
         | ty::FnDef(..)
         | ty::FnPtr(_)
         | ty::Array(..)
+        | ty::View(..)
         | ty::Slice(..)
         | ty::RawPtr(..)
         | ty::Ref(..)

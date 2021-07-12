@@ -115,6 +115,17 @@ impl ItemLikeVisitor<'v> for InherentCollect<'tcx> {
                     assoc_items,
                 );
             }
+            ty::View(_, _) => {
+                self.check_primitive_impl(
+                    item.def_id,
+                    lang_items.view_impl(),
+                    None,
+                    "view",
+                    "[T[N]]",
+                    item.span,
+                    assoc_items,
+                );
+            }
             ty::Array(_, _) => {
                 self.check_primitive_impl(
                     item.def_id,

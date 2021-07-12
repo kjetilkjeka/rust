@@ -1333,6 +1333,13 @@ impl<'tcx> Visitor<'tcx> for DumpVisitor<'tcx> {
                     v.visit_expr(&map.body(anon_const.body).value)
                 });
             }
+            hir::TyKind::View(ref ty, ref anon_const) => {
+                self.visit_ty(ty);
+                let map = self.tcx.hir();
+                self.nest_typeck_results(self.tcx.hir().local_def_id(anon_const.hir_id), |v| {
+                    v.visit_expr(&map.body(anon_const.body).value)
+                });
+            }
             hir::TyKind::OpaqueDef(item_id, _) => {
                 let item = self.tcx.hir().item(item_id);
                 self.nest_typeck_results(item_id.def_id, |v| v.visit_item(item));

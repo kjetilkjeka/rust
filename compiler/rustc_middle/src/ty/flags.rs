@@ -184,6 +184,11 @@ impl FlagComputation {
                 self.add_const(len);
             }
 
+            &ty::View(tt, dim) => {
+                self.add_ty(tt);
+                self.add_const(dim);
+            }
+
             &ty::Slice(tt) => self.add_ty(tt),
 
             &ty::RawPtr(ref m) => {

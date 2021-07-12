@@ -406,6 +406,7 @@ impl FromWithTcx<clean::Type> for Type {
             Primitive(p) => Type::Primitive(p.as_sym().to_string()),
             BareFunction(f) => Type::FunctionPointer(Box::new((*f).into_tcx(tcx))),
             Tuple(t) => Type::Tuple(t.into_iter().map(|x| x.into_tcx(tcx)).collect()),
+            View(t, s) => Type::View { type_: Box::new((*t).into_tcx(tcx)), dim: s },
             Slice(t) => Type::Slice(Box::new((*t).into_tcx(tcx))),
             Array(t, s) => Type::Array { type_: Box::new((*t).into_tcx(tcx)), len: s },
             ImplTrait(g) => Type::ImplTrait(g.into_iter().map(|x| x.into_tcx(tcx)).collect()),

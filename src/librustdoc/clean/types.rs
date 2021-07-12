@@ -1450,6 +1450,8 @@ crate enum Type {
     BareFunction(Box<BareFunctionDecl>),
     Tuple(Vec<Type>),
     Slice(Box<Type>),
+    /// The `String` field is about the dimension or the constant representing the view's dimension.
+    View(Box<Type>, String),
     /// The `String` field is about the size or the constant representing the array's length.
     Array(Box<Type>, String),
     Never,
@@ -1497,6 +1499,7 @@ crate enum PrimitiveType {
     Bool,
     Str,
     Slice,
+    View,
     Array,
     Tuple,
     Unit,
@@ -1640,6 +1643,7 @@ impl Type {
             BareFunction(..) => PrimitiveType::Fn,
             Never => PrimitiveType::Never,
             Slice(..) => PrimitiveType::Slice,
+            View(..) => PrimitiveType::View,
             Array(..) => PrimitiveType::Array,
             RawPointer(..) => PrimitiveType::RawPointer,
             QPath { ref self_type, .. } => return self_type.inner_def_id(cache),
@@ -1797,6 +1801,7 @@ impl PrimitiveType {
             Bool => sym::bool,
             Char => sym::char,
             Array => sym::array,
+            View => sym::view,
             Slice => sym::slice,
             Tuple => sym::tuple,
             Unit => sym::unit,

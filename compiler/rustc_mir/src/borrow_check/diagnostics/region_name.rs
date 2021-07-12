@@ -542,6 +542,7 @@ impl<'tcx> MirBorrowckCtxt<'_, 'tcx> {
                 }
 
                 (ty::Slice(elem_ty), hir::TyKind::Slice(elem_hir_ty))
+                | (ty::View(elem_ty, _), hir::TyKind::View(elem_hir_ty, _))
                 | (ty::Array(elem_ty, _), hir::TyKind::Array(elem_hir_ty, _)) => {
                     search_stack.push((elem_ty, elem_hir_ty));
                 }

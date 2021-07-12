@@ -243,6 +243,7 @@ fn get_index_type_name(clean_type: &clean::Type, accept_generic: bool) -> Option
         | clean::BareFunction(_)
         | clean::Tuple(_)
         | clean::Slice(_)
+        | clean::View(..)
         | clean::Array(_, _)
         | clean::Never
         | clean::RawPointer(_, _)

@@ -267,6 +267,10 @@ impl<'a, 'tcx> ConstraintContext<'a, 'tcx> {
                 self.add_constraints_from_ty(current, typ, variance);
             }
 
+            ty::View(typ, _) => {
+                self.add_constraints_from_ty(current, typ, variance);
+            }
+
             ty::Slice(typ) => {
                 self.add_constraints_from_ty(current, typ, variance);
             }

@@ -260,6 +260,7 @@ where
             | ty::Str
             | ty::Never
             | ty::Array(..)
+            | ty::View(..)
             | ty::Slice(..)
             | ty::Tuple(..)
             | ty::RawPtr(..)

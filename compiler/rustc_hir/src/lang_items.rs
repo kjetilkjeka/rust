@@ -171,6 +171,7 @@ language_item_table! {
     Str,                     sym::str,                 str_impl,                   Target::Impl;
     Array,                   sym::array,               array_impl,                 Target::Impl;
     Slice,                   sym::slice,               slice_impl,                 Target::Impl;
+    View,                    sym::view,                view_impl,                  Target::Impl;
     SliceU8,                 sym::slice_u8,            slice_u8_impl,              Target::Impl;
     StrAlloc,                sym::str_alloc,           str_alloc_impl,             Target::Impl;
     SliceAlloc,              sym::slice_alloc,         slice_alloc_impl,           Target::Impl;
@@ -212,6 +213,7 @@ language_item_table! {
     PointeeTrait,            sym::pointee_trait,       pointee_trait,              Target::Trait;
     Metadata,                sym::metadata_type,       metadata_type,              Target::AssocTy;
     DynMetadata,             sym::dyn_metadata,        dyn_metadata,               Target::Struct;
+    ViewMetadata,            sym::view_metadata,       view_metadata,              Target::Struct;
 
     Freeze,                  sym::freeze,              freeze_trait,               Target::Trait;
 

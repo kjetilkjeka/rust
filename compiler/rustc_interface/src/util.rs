@@ -756,6 +756,7 @@ impl<'a, 'b> ReplaceBodyWithLoop<'a, 'b> {
                     ast::TyKind::ImplTrait(..) => true,
                     ast::TyKind::Slice(ref subty)
                     | ast::TyKind::Array(ref subty, _)
+                    | ast::TyKind::View(ref subty, _)
                     | ast::TyKind::Ptr(ast::MutTy { ty: ref subty, .. })
                     | ast::TyKind::Rptr(_, ast::MutTy { ty: ref subty, .. })
                     | ast::TyKind::Paren(ref subty) => involves_impl_trait(subty),

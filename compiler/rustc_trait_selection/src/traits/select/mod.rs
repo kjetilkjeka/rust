@@ -1594,7 +1594,7 @@ impl<'cx, 'tcx> SelectionContext<'cx, 'tcx> {
                 Where(ty::Binder::dummy(Vec::new()))
             }
 
-            ty::Str | ty::Slice(_) | ty::Dynamic(..) | ty::Foreign(..) => None,
+            ty::Str | ty::Slice(_) | ty::View(..) | ty::Dynamic(..) | ty::Foreign(..) => None,
 
             ty::Tuple(tys) => Where(
                 obligation
@@ -1654,6 +1654,7 @@ impl<'cx, 'tcx> SelectionContext<'cx, 'tcx> {
             ty::Dynamic(..)
             | ty::Str
             | ty::Slice(..)
+            | ty::View(..)
             | ty::Generator(..)
             | ty::GeneratorWitness(..)
             | ty::Foreign(..)
@@ -1742,7 +1743,9 @@ impl<'cx, 'tcx> SelectionContext<'cx, 'tcx> {
                 t.rebind(vec![element_ty])
             }
 
-            ty::Array(element_ty, _) | ty::Slice(element_ty) => t.rebind(vec![element_ty]),
+            ty::Array(element_ty, _) | ty::View(element_ty, _) | ty::Slice(element_ty) => {
+                t.rebind(vec![element_ty])
+            }
 
             ty::Tuple(ref tys) => {
                 // (T1, ..., Tn) -- meets any bound that all of T1...Tn meet

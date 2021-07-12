@@ -2283,6 +2283,8 @@ pub enum OpaqueTyOrigin {
 pub enum TyKind<'hir> {
     /// A variable length slice (i.e., `[T]`).
     Slice(&'hir Ty<'hir>),
+    /// A n dimension array view (i.e., `[n[T]]`).
+    View(&'hir Ty<'hir>, AnonConst),
     /// A fixed length array (i.e., `[T; n]`).
     Array(&'hir Ty<'hir>, AnonConst),
     /// A raw pointer (i.e., `*const T` or `*mut T`).

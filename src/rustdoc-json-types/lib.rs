@@ -377,6 +377,12 @@ pub enum Type {
     Tuple(Vec<Type>),
     /// `[u32]`
     Slice(Box<Type>),
+    /// `[2[u32]]`
+    View {
+        #[serde(rename = "type")]
+        type_: Box<Type>,
+        dim: String,
+    },
     /// [u32; 15]
     Array {
         #[serde(rename = "type")]

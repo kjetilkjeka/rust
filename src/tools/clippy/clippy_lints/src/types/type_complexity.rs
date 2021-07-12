@@ -45,7 +45,7 @@ impl<'tcx> Visitor<'tcx> for TypeComplexityVisitor {
             TyKind::Infer | TyKind::Ptr(..) | TyKind::Rptr(..) => (1, 0),
 
             // the "normal" components of a type: named types, arrays/tuples
-            TyKind::Path(..) | TyKind::Slice(..) | TyKind::Tup(..) | TyKind::Array(..) => (10 * self.nest, 1),
+            TyKind::Path(..) | TyKind::Slice(..) | TyKind::View(..) | TyKind::Tup(..) | TyKind::Array(..) => (10 * self.nest, 1),
 
             // function types bring a lot of overhead
             TyKind::BareFn(bare) if bare.abi == Abi::Rust => (50 * self.nest, 1),

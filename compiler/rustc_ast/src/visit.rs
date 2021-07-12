@@ -376,6 +376,10 @@ pub fn walk_pat_field<'a, V: Visitor<'a>>(visitor: &mut V, fp: &'a PatField) {
 pub fn walk_ty<'a, V: Visitor<'a>>(visitor: &mut V, typ: &'a Ty) {
     match typ.kind {
         TyKind::Slice(ref ty) | TyKind::Paren(ref ty) => visitor.visit_ty(ty),
+        TyKind::View(ref ty, ref dim) => {
+            visitor.visit_ty(ty);
+            visitor.visit_anon_const(dim);
+        }
         TyKind::Ptr(ref mutable_type) => visitor.visit_ty(&mutable_type.ty),
         TyKind::Rptr(ref opt_lifetime, ref mutable_type) => {
             walk_list!(visitor, visit_lifetime, opt_lifetime);

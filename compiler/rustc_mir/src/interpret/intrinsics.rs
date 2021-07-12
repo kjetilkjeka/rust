@@ -91,6 +91,7 @@ crate fn eval_nullary_intrinsic<'tcx>(
             | ty::Foreign(_)
             | ty::Str
             | ty::Array(_, _)
+            | ty::View(_, _)
             | ty::Slice(_)
             | ty::RawPtr(_)
             | ty::Ref(_, _, _)

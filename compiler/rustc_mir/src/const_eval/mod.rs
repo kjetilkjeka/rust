@@ -97,8 +97,8 @@ fn const_to_valtree_inner<'tcx>(
         // but it is unclear if this is useful.
         ty::Dynamic(..) => None,
 
-        ty::Slice(_) | ty::Str => {
-            unimplemented!("need to find the backing data of the slice/str and recurse on that")
+        ty::Slice(_) | ty::View(..) | ty::Str => {
+            unimplemented!("need to find the backing data of the slice/view/str and recurse on that")
         }
         ty::Tuple(substs) => branches(substs.len(), None),
         ty::Array(_, len) => branches(usize::try_from(len.eval_usize(ecx.tcx.tcx, ecx.param_env)).unwrap(), None),

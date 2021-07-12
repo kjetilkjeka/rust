@@ -862,6 +862,7 @@ impl<'tcx> TypeFoldable<'tcx> for Ty<'tcx> {
         let kind = match *self.kind() {
             ty::RawPtr(tm) => ty::RawPtr(tm.fold_with(folder)),
             ty::Array(typ, sz) => ty::Array(typ.fold_with(folder), sz.fold_with(folder)),
+            ty::View(typ, dim) => ty::View(typ.fold_with(folder), dim.fold_with(folder)),
             ty::Slice(typ) => ty::Slice(typ.fold_with(folder)),
             ty::Adt(tid, substs) => ty::Adt(tid, substs.fold_with(folder)),
             ty::Dynamic(trait_ty, region) => {
@@ -907,6 +908,10 @@ impl<'tcx> TypeFoldable<'tcx> for Ty<'tcx> {
             ty::Array(typ, sz) => {
                 typ.visit_with(visitor)?;
                 sz.visit_with(visitor)
+            }
+            ty::View(typ, dim) => {
+                typ.visit_with(visitor)?;
+                dim.visit_with(visitor)
             }
             ty::Slice(typ) => typ.visit_with(visitor),
             ty::Adt(_, substs) => substs.visit_with(visitor),

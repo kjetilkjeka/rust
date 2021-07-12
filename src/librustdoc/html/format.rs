@@ -759,6 +759,11 @@ fn fmt_type<'cx>(
             fmt::Display::fmt(&t.print(cx), f)?;
             primitive_link(f, PrimitiveType::Slice, "]", cx)
         }
+        clean::View(ref t, ref dim) => {
+            primitive_link(f, PrimitiveType::View, "[", cx)?;
+            fmt::Display::fmt(dim, f)?;
+            primitive_link(f, PrimitiveType::View, &format!("[{}]]", &t.print(cx)), cx)
+        }
         clean::Array(ref t, ref n) => {
             primitive_link(f, PrimitiveType::Array, "[", cx)?;
             fmt::Display::fmt(&t.print(cx), f)?;

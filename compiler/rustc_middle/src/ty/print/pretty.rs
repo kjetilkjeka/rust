@@ -753,6 +753,24 @@ pub trait PrettyPrinter<'tcx>:
                 p!("]")
             }
             ty::Slice(ty) => p!("[", print(ty), "]"),
+            ty::View(ty, dim) => {
+                p!("[");
+                if self.tcx().sess.verbose() {
+                    p!(write("{:?}", dim));
+                } else if let ty::ConstKind::Unevaluated(..) = dim.val {
+                    // Do not try to evaluate unevaluated constants. If we are const evaluating a
+                    // view dimension anon const, rustc will (with debug assertions) print the
+                    // constant's path. Which will end up here again.
+                    p!("_");
+                } else if let Some(n) = dim.val.try_to_bits(self.tcx().data_layout.pointer_size) {
+                    p!(write("{}", n));
+                } else if let ty::ConstKind::Param(param) = dim.val {
+                    p!(write("{}", param));
+                } else {
+                    p!("_");
+                }
+                p!("[", print(ty), "]]")
+            }
         }
 
         Ok(self)

@@ -63,7 +63,7 @@ impl RedundantStaticLifetimes {
                 // Match the 'static lifetime
                 if let Some(lifetime) = *optional_lifetime {
                     match borrow_type.ty.kind {
-                        TyKind::Path(..) | TyKind::Slice(..) | TyKind::Array(..) | TyKind::Tup(..) => {
+                        TyKind::Path(..) | TyKind::Slice(..) | TyKind::View(..) | TyKind::Array(..) | TyKind::Tup(..) => {
                             if lifetime.ident.name == rustc_span::symbol::kw::StaticLifetime {
                                 let snip = snippet(cx, borrow_type.ty.span, "<type>");
                                 let sugg = format!("&{}", snip);
@@ -89,6 +89,9 @@ impl RedundantStaticLifetimes {
                 self.visit_type(&*borrow_type.ty, cx, reason);
             },
             TyKind::Slice(ref ty) => {
+                self.visit_type(ty, cx, reason);
+            },
+            TyKind::View(ref ty, _) => {
                 self.visit_type(ty, cx, reason);
             },
             _ => {},

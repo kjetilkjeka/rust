@@ -139,6 +139,10 @@ fn push_inner<'tcx>(stack: &mut TypeWalkerStack<'tcx>, parent: GenericArg<'tcx>)
                 stack.push(len.into());
                 stack.push(ty.into());
             }
+            ty::View(ty, dim) => {
+                stack.push(dim.into());
+                stack.push(ty.into());
+            }
             ty::Slice(ty) => {
                 stack.push(ty.into());
             }

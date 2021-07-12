@@ -1851,6 +1851,8 @@ pub struct BareFnTy {
 pub enum TyKind {
     /// A variable-length slice (`[T]`).
     Slice(P<Ty>),
+    /// An array view (`[n[T]]`).
+    View(P<Ty>, AnonConst),
     /// A fixed length array (`[T; n]`).
     Array(P<Ty>, AnonConst),
     /// A raw pointer (`*const T` or `*mut T`).

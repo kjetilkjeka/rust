@@ -268,6 +268,12 @@ impl<'tcx> LowerInto<'tcx, chalk_ir::Ty<RustInterner<'tcx>>> for Ty<'tcx> {
             ty::Array(ty, len) => {
                 chalk_ir::TyKind::Array(ty.lower_into(interner), len.lower_into(interner))
             }
+            ty::View(ty, dim) => {
+                // TODO: Update chalk to support `View`
+                // For now use Array to make compilation possible
+                //chalk_ir::TyKind::View(ty.lower_into(interner), dim.lower_into(interner))
+                chalk_ir::TyKind::Array(ty.lower_into(interner), dim.lower_into(interner))
+            }
             ty::Slice(ty) => chalk_ir::TyKind::Slice(ty.lower_into(interner)),
 
             ty::RawPtr(ptr) => {
@@ -370,6 +376,14 @@ impl<'tcx> LowerInto<'tcx, Ty<'tcx>> for &chalk_ir::Ty<RustInterner<'tcx>> {
                 let c = c.lower_into(interner);
                 ty::Array(ty, interner.tcx.mk_const(c))
             }
+            // TODO: Update chalk to support `View`
+            /*
+            TyKind::View(ty, c) => {
+                let ty = ty.lower_into(interner);
+                let c = c.lower_into(interner);
+                ty::View(ty, interner.tcx.mk_const(c))
+            }
+            */
             TyKind::FnDef(id, substitution) => ty::FnDef(id.0, substitution.lower_into(interner)),
             TyKind::Closure(closure, substitution) => {
                 ty::Closure(closure.0, substitution.lower_into(interner))

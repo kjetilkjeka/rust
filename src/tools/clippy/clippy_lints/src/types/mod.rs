@@ -431,7 +431,7 @@ impl Types {
                     self.check_ty(cx, mut_ty.ty, context);
                 }
             },
-            TyKind::Slice(ty) | TyKind::Array(ty, _) | TyKind::Ptr(MutTy { ty, .. }) => {
+            TyKind::Slice(ty) | TyKind::Array(ty, _) | TyKind::View(ty, _) | TyKind::Ptr(MutTy { ty, .. }) => {
                 context.is_nested_call = true;
                 self.check_ty(cx, ty, context);
             },
