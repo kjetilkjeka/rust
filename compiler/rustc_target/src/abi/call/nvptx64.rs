@@ -47,7 +47,7 @@ pub fn compute_abi_info<Ty>(fn_abi: &mut FnAbi<'_, Ty>) {
                     continue;
                 }
                 classify_arg(arg);
-            }       
+            }
         }
     }
 }
