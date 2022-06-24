@@ -1463,6 +1463,14 @@ pub struct TargetOptions {
     /// Whether the target supports stack canary checks. `true` by default,
     /// since this is most common among tier 1 and tier 2 targets.
     pub supports_stack_protector: bool,
+
+    /// Whether to enable the optimization of turning small aggregates into immediates
+    /// when being passed as a function argument or returned from a function.
+    ///
+    /// Using an LLVM aggregate type leads to worse performance than when using an immediate.
+    /// But some targets do not support the extended value types in LLVM and
+    /// cannot rely on this optimization.
+    pub pass_small_aggregates_as_immediates: bool,
 }
 
 impl Default for TargetOptions {
@@ -1570,6 +1578,7 @@ impl Default for TargetOptions {
             c_enum_min_bits: 32,
             generate_arange_section: true,
             supports_stack_protector: true,
+            pass_small_aggregates_as_immediates: true,
         }
     }
 }
@@ -2166,6 +2175,7 @@ impl Target {
         key!(c_enum_min_bits, u64);
         key!(generate_arange_section, bool);
         key!(supports_stack_protector, bool);
+        key!(pass_small_aggregates_as_immediates, bool);
 
         if base.is_builtin {
             // This can cause unfortunate ICEs later down the line.
@@ -2411,6 +2421,7 @@ impl ToJson for Target {
         target_option_val!(c_enum_min_bits);
         target_option_val!(generate_arange_section);
         target_option_val!(supports_stack_protector);
+        target_option_val!(pass_small_aggregates_as_immediates);
 
         if let Some(abi) = self.default_adjusted_cabi {
             d.insert("default-adjusted-cabi".into(), Abi::name(abi).to_json());

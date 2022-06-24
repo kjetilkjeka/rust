@@ -3395,7 +3395,7 @@ impl<'tcx> LayoutCx<'tcx, TyCtxt<'tcx>> {
                 let size = arg.layout.size;
                 if arg.layout.is_unsized() || size > Pointer.size(self) {
                     arg.make_indirect();
-                } else {
+                } else if self.target_spec().options.pass_small_aggregates_as_immediates {
                     // We want to pass small aggregates as immediates, but using
                     // a LLVM aggregate type for this leads to bad optimizations,
                     // so we pick an appropriately sized integer type instead.

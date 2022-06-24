@@ -48,6 +48,11 @@ pub fn target() -> Target {
             // The LLVM backend does not support stack canaries for this target
             supports_stack_protector: false,
 
+            /// The LLVM backend does not support extended value types for NVPTX.
+            /// Unless this is set to false, aggregates are converted to immediates with the
+            /// same length as the size_of the struct which can correspond to an extended type.
+            pass_small_aggregates_as_immediates: false,
+
             ..Default::default()
         },
     }
